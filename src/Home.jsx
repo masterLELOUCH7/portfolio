@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
-import { Camera, Github, Linkedin, Twitter, Mail, ExternalLink } from "lucide-react";
-import logo  from './assets/images/logo.jpg';
+import logo from "./assets/images/logo.jpg";  // ← FIXED PATH
+import { Camera, Github, Linkedin, Twitter, Mail, ExternalLink, Code2, Palette, Layers, Coffee, Database, Cpu, Lightbulb, Film, Trophy, Dumbbell, Users, MessageSquare, Target } from "lucide-react";
 
 const Home = () => {
   const [activeSection, setActiveSection] = useState("home");
@@ -69,9 +69,28 @@ const Home = () => {
   ];
 
   const skills = [
-    "React", "JavaScript", "Tailwind CSS", "HTML5", "CSS3", 
-    "Git & GitHub", "Node.js", "Figma", "TypeScript", 
-    "Responsive Design", "REST APIs", "Redux"
+    { name: "HTML5", icon: Code2 },
+    { name: "CSS", icon: Palette },
+    { name: "Tailwind CSS", icon: Layers },
+    { name: "JavaScript", icon: Coffee },
+    { name: "Java", icon: Coffee },
+    { name: "React", icon: Code2 },
+    { name: "MERN (Learning)", icon: Database },
+  ];
+
+  const hobbies = [
+    { name: "Problem Solving", icon: Lightbulb },
+    { name: "Video Editing", icon: Film },
+    { name: "Chess", icon: Trophy },
+  ];
+
+  const softSkills = [
+    { name: "Logic Skills", icon: Cpu },
+    { name: "Mathematics Logic", icon: Target },
+    { name: "Fitness", icon: Dumbbell },
+    { name: "Discipline", icon: Target },
+    { name: "Communication", icon: MessageSquare },
+    { name: "Teamwork", icon: Users },
   ];
 
   return (
@@ -160,8 +179,12 @@ const Home = () => {
           <div className="mb-8 relative group">
             <div className="w-40 h-40 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 p-1 mx-auto">
               <div className="w-full h-full rounded-full bg-gray-800 flex items-center justify-center overflow-hidden">
-                <Camera className="w-16 h-16 text-gray-500" />
-                <img src={logo} alt="Profile" className="w-full h-full object-cover" />
+                <img 
+  src={logo} 
+  alt="Vikram Das" 
+  className="w-full h-full object-cover"
+/>
+
               </div>
             </div>
             <div className="absolute inset-0 rounded-full bg-purple-500/20 blur-xl group-hover:blur-2xl transition-all duration-300"></div>
@@ -222,10 +245,13 @@ const Home = () => {
           </h2>
           <div className="bg-white/5 backdrop-blur-sm rounded-2xl p-8 border border-purple-500/20">
             <p className="text-gray-300 text-lg leading-relaxed mb-6">
-              I'm <span className="text-purple-400 font-semibold">Vikram Das</span>, a passionate React developer dedicated to crafting smooth, responsive, and visually stunning web experiences. My journey in frontend development is driven by curiosity and a constant desire to learn and improve.
+              I'm <span className="text-purple-400 font-semibold">Vikram Das</span>, a passionate React developer dedicated to crafting smooth, responsive, and visually stunning web experiences. I completed my BCA from Trinity Institute of Professional Studies, affiliated with IPU University, where I built a strong foundation in computer applications and programming.
+            </p>
+            <p className="text-gray-300 text-lg leading-relaxed mb-6">
+              Currently, I'm pursuing my MCA from Manipal University Online, continuously expanding my knowledge in advanced computing technologies and modern web development practices. My journey in frontend development is driven by curiosity and a constant desire to learn and improve.
             </p>
             <p className="text-gray-300 text-lg leading-relaxed">
-              When I'm not coding, you'll find me exploring cutting-edge JavaScript libraries, experimenting with new design concepts, and contributing to open-source projects. I believe in writing clean, maintainable code that not only works flawlessly but also provides delightful user experiences.
+              When I'm not coding, you'll find me exploring cutting-edge JavaScript libraries, experimenting with new design concepts, and solving challenging problems. I believe in writing clean, maintainable code that not only works flawlessly but also provides delightful user experiences.
             </p>
           </div>
         </div>
@@ -244,16 +270,56 @@ const Home = () => {
           <h2 className="text-4xl md:text-5xl font-bold mb-12 text-center bg-gradient-to-r from-purple-400 to-pink-600 bg-clip-text text-transparent">
             Skills & Technologies
           </h2>
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-            {skills.map((skill, index) => (
-              <div
-                key={skill}
-                className="bg-white/5 backdrop-blur-sm rounded-xl p-6 text-center hover:bg-purple-600/20 transition-all duration-300 border border-purple-500/20 hover:scale-105 hover:border-purple-500/40"
-                style={{ animationDelay: `${index * 0.05}s` }}
-              >
-                <span className="text-lg font-semibold">{skill}</span>
-              </div>
-            ))}
+          
+          {/* Technical Skills */}
+          <div className="mb-12">
+            <h3 className="text-2xl font-semibold mb-6 text-center text-purple-300">Technical Skills</h3>
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+              {skills.map((skill, index) => (
+                <div
+                  key={skill.name}
+                  className="bg-white/5 backdrop-blur-sm rounded-xl p-6 text-center hover:bg-purple-600/20 transition-all duration-300 border border-purple-500/20 hover:scale-105 hover:border-purple-500/40 flex flex-col items-center gap-3"
+                  style={{ animationDelay: `${index * 0.05}s` }}
+                >
+                  <skill.icon className="w-8 h-8 text-purple-400" />
+                  <span className="text-lg font-semibold">{skill.name}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Hobbies */}
+          <div className="mb-12">
+            <h3 className="text-2xl font-semibold mb-6 text-center text-pink-300">Hobbies & Interests</h3>
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+              {hobbies.map((hobby, index) => (
+                <div
+                  key={hobby.name}
+                  className="bg-white/5 backdrop-blur-sm rounded-xl p-6 text-center hover:bg-pink-600/20 transition-all duration-300 border border-pink-500/20 hover:scale-105 hover:border-pink-500/40 flex flex-col items-center gap-3"
+                  style={{ animationDelay: `${index * 0.05}s` }}
+                >
+                  <hobby.icon className="w-8 h-8 text-pink-400" />
+                  <span className="text-lg font-semibold">{hobby.name}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Soft Skills */}
+          <div>
+            <h3 className="text-2xl font-semibold mb-6 text-center text-blue-300">Soft Skills</h3>
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+              {softSkills.map((skill, index) => (
+                <div
+                  key={skill.name}
+                  className="bg-white/5 backdrop-blur-sm rounded-xl p-6 text-center hover:bg-blue-600/20 transition-all duration-300 border border-blue-500/20 hover:scale-105 hover:border-blue-500/40 flex flex-col items-center gap-3"
+                  style={{ animationDelay: `${index * 0.05}s` }}
+                >
+                  <skill.icon className="w-8 h-8 text-blue-400" />
+                  <span className="text-lg font-semibold">{skill.name}</span>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </section>
@@ -271,47 +337,6 @@ const Home = () => {
           <h2 className="text-4xl md:text-5xl font-bold mb-12 text-center bg-gradient-to-r from-purple-400 to-pink-600 bg-clip-text text-transparent">
               Projects will be updated soon
           </h2>
-          {/* <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {projects.map((project, index) => (
-              <div
-                key={index}
-                className="bg-white/5 backdrop-blur-sm rounded-xl p-6 border border-purple-500/20 hover:border-purple-500/40 transition-all duration-300 hover:scale-105 group"
-              >
-                <h3 className="text-2xl font-bold mb-3 text-white group-hover:text-purple-400 transition-colors">
-                  {project.title}
-                </h3>
-                <p className="text-gray-300 mb-4 leading-relaxed text-sm">
-                  {project.description}
-                </p>
-                <div className="flex flex-wrap gap-2 mb-4">
-                  {project.tech.map((tech) => (
-                    <span
-                      key={tech}
-                      className="bg-purple-600/30 text-purple-300 px-3 py-1 rounded-full text-xs"
-                    >
-                      {tech}
-                    </span>
-                  ))}
-                </div>
-                <div className="flex gap-4">
-                  <a
-                    href={project.github}
-                    className="flex items-center gap-2 text-purple-400 hover:text-purple-300 transition-colors text-sm"
-                  >
-                    <Github className="w-4 h-4" />
-                    Code
-                  </a>
-                  <a
-                    href={project.demo}
-                    className="flex items-center gap-2 text-purple-400 hover:text-purple-300 transition-colors text-sm"
-                  >
-                    <ExternalLink className="w-4 h-4" />
-                    Demo
-                  </a>
-                </div>
-              </div>
-            ))}
-          </div> */}
         </div>
       </section>
 
