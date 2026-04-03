@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import logo from "./assets/images/logo.jpg";  // ← FIXED PATH
-import { Camera, Github, Linkedin, Twitter, Mail, ExternalLink, Code2, Palette, Layers, Coffee, Database, Cpu, Lightbulb, Film, Trophy, Dumbbell, Users, MessageSquare, Target } from "lucide-react";
+
+import { Camera, Github, Linkedin, Instagram , Twitter, Mail, ExternalLink, Code2, Palette, Layers, Coffee, Database, Cpu, Lightbulb, Film, Trophy, Dumbbell, Users, MessageSquare, Target } from "lucide-react";
 
 const Home = () => {
   const [activeSection, setActiveSection] = useState("home");
@@ -166,180 +167,255 @@ const Home = () => {
       </nav>
 
       {/* Hero Section */}
-      <section
-        id="home"
-        className="flex flex-col items-center justify-center min-h-screen text-center px-6 pt-20"
+<section
+  id="home"
+  className="flex flex-col items-center justify-center min-h-screen text-center px-6 pt-24"
+>
+  <div
+    className={`transition-all duration-1000 ${
+      isVisible.home
+        ? "opacity-100 translate-y-0"
+        : "opacity-0 translate-y-10"
+    }`}
+  >
+    {/* Profile Image */}
+    <div className="mb-10 relative group">
+      <div className="w-40 h-40 rounded-full border-4 border-purple-500/40 overflow-hidden mx-auto shadow-xl group-hover:scale-105 transition-all duration-500">
+        <img
+          src={logo}
+          alt="Vikram Das"
+          className="w-full h-full object-cover"
+        />
+      </div>
+
+      <div className="absolute inset-0 rounded-full bg-purple-500/10 blur-xl group-hover:blur-2xl transition-all duration-500"></div>
+    </div>
+
+    {/* Name */}
+    <h1 className="text-5xl md:text-7xl font-extrabold mb-4 bg-gradient-to-r from-purple-400 to-pink-500 bg-clip-text text-transparent">
+      Vikram Das
+    </h1>
+
+    {/* Tagline */}
+    <p className="text-xl md:text-2xl text-gray-300 mb-4">
+      React Developer • MERN Stack • Future SDE
+    </p>
+
+    {/* Description */}
+    <p className="text-gray-400 mb-10 max-w-xl mx-auto">
+      Building scalable web applications while mastering DSA and backend development with Java.
+    </p>
+
+    {/* Buttons */}
+    <div className="flex flex-wrap gap-4 justify-center mb-10">
+      <button
+        onClick={() => scrollToSection("projects")}
+        className="bg-purple-600 hover:bg-purple-700 px-8 py-3 rounded-xl font-semibold transition hover:scale-105"
       >
-        <div
-          className={`transition-all duration-1000 ${
-            isVisible.home ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"
-          }`}
-        >
-          {/* Profile Picture */}
-          <div className="mb-8 relative group">
-            <div className="w-40 h-40 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 p-1 mx-auto">
-              <div className="w-full h-full rounded-full bg-gray-800 flex items-center justify-center overflow-hidden">
-                <img 
-  src={logo} 
-  alt="Vikram Das" 
-  className="w-full h-full object-cover"
-/>
+        View Projects
+      </button>
 
-              </div>
-            </div>
-            <div className="absolute inset-0 rounded-full bg-purple-500/20 blur-xl group-hover:blur-2xl transition-all duration-300"></div>
-          </div>
+      <button
+        onClick={() => scrollToSection("contact")}
+        className="border border-white/20 hover:bg-white/10 px-8 py-3 rounded-xl transition hover:scale-105"
+      >
+        Contact Me
+      </button>
 
-          <h1 className="text-5xl md:text-7xl font-extrabold mb-4 bg-gradient-to-r from-purple-400 via-pink-500 to-purple-400 bg-clip-text text-transparent">
-            VIKRAM DAS
-          </h1>
-          <p className="text-xl md:text-2xl text-gray-300 mb-8 max-w-2xl mx-auto">
-            React Developer • Frontend Enthusiast • Building Beautiful Web Experiences
-          </p>
-          
-          <div className="flex flex-wrap gap-4 justify-center mb-8">
-            <button
-              onClick={() => scrollToSection("projects")}
-              className="bg-purple-600 text-white px-8 py-3 rounded-full hover:bg-purple-700 transition-all duration-300 transform hover:scale-105 shadow-lg"
-            >
-              View Projects
-            </button>
-            <button
-              onClick={() => scrollToSection("contact")}
-              className="bg-transparent border-2 border-purple-600 text-white px-8 py-3 rounded-full hover:bg-purple-600/20 transition-all duration-300 transform hover:scale-105"
-            >
-              Get In Touch
-            </button>
-          </div>
+      {/* Resume Button */}
+      <a
+        href="#" // 👉 replace with /resume.pdf later
+        className="bg-white/10 border border-white/20 hover:bg-white/20 px-8 py-3 rounded-xl transition hover:scale-105"
+      >
+        Resume
+      </a>
+    </div>
 
-          <div className="flex gap-6 justify-center">
-            {[
-              { icon: Github, href: "#" },
-              { icon: Linkedin, href: "#" },
-              { icon: Twitter, href: "#" },
-            ].map((social, idx) => (
-              <a
-                key={idx}
-                href={social.href}
-                className="text-gray-400 hover:text-purple-400 transition-colors duration-300"
-              >
-                <social.icon className="w-6 h-6" />
-              </a>
-            ))}
-          </div>
-        </div>
-      </section>
+    {/* Social Links */}
+    <div className="flex gap-6 justify-center text-gray-400">
+      
+      {/* GitHub */}
+      <a
+        href="#" // 👉 add GitHub link later
+        className="hover:text-white transition hover:scale-125"
+      >
+        <Github size={24} />
+      </a>
+
+      {/* LinkedIn */}
+      <a
+        href="#" // 👉 add LinkedIn link later
+        className="hover:text-blue-400 transition hover:scale-125"
+      >
+        <Linkedin size={24} />
+      </a>
+
+      {/* Instagram */}
+      <a
+        href="#" // 👉 add Instagram link later
+        className="hover:text-pink-400 transition hover:scale-125"
+      >
+        <Instagram size={24} />
+      </a>
+    </div>
+
+    {/* Scroll Indicator */}
+    <div className="mt-16 animate-bounce text-gray-500 text-2xl">
+      ↓
+    </div>
+  </div>
+</section>
 
       {/* About Section */}
-      <section
-        id="about"
-        className="min-h-screen flex flex-col items-center justify-center px-6 py-20"
-      >
-        <div
-          className={`max-w-4xl transition-all duration-1000 ${
-            isVisible.about ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"
-          }`}
-        >
-          <h2 className="text-4xl md:text-5xl font-bold mb-8 text-center bg-gradient-to-r from-purple-400 to-pink-600 bg-clip-text text-transparent">
-            About Me
-          </h2>
-          <div className="bg-white/5 backdrop-blur-sm rounded-2xl p-8 border border-purple-500/20">
-            <p className="text-gray-300 text-lg leading-relaxed mb-6">
-              I'm <span className="text-purple-400 font-semibold">Vikram Das</span>, a passionate React developer dedicated to crafting smooth, responsive, and visually stunning web experiences. I completed my BCA from Trinity Institute of Professional Studies, affiliated with IPU University, where I built a strong foundation in computer applications and programming.
-            </p>
-            <p className="text-gray-300 text-lg leading-relaxed mb-6">
-              Currently, I'm pursuing my MCA from Manipal University Online, continuously expanding my knowledge in advanced computing technologies and modern web development practices. My journey in frontend development is driven by curiosity and a constant desire to learn and improve.
-            </p>
-            <p className="text-gray-300 text-lg leading-relaxed">
-              When I'm not coding, you'll find me exploring cutting-edge JavaScript libraries, experimenting with new design concepts, and solving challenging problems. I believe in writing clean, maintainable code that not only works flawlessly but also provides delightful user experiences.
-            </p>
+<section
+  id="about"
+  className="min-h-screen flex flex-col items-center justify-center px-6 py-24"
+>
+  <div
+    className={`max-w-4xl transition-all duration-1000 ${
+      isVisible.about
+        ? "opacity-100 translate-y-0"
+        : "opacity-0 translate-y-10"
+    }`}
+  >
+    <h2 className="text-4xl md:text-5xl font-bold mb-10 text-center bg-gradient-to-r from-purple-400 to-pink-500 bg-clip-text text-transparent">
+      About Me
+    </h2>
+
+    <div className="bg-white/5 border border-white/10 rounded-2xl p-10 text-center hover:border-purple-500/40 transition-all duration-500">
+      
+      <p className="text-gray-300 text-lg leading-relaxed mb-6">
+        I'm <span className="text-purple-400 font-semibold">Vikram Das</span>, a 
+        <span className="text-white font-semibold"> React Developer</span> building modern, responsive web applications using 
+        <span className="text-purple-400"> HTML, CSS, JavaScript, React, Tailwind & MERN</span>.
+      </p>
+
+      <p className="text-gray-300 text-lg leading-relaxed mb-6">
+        Currently pursuing <span className="text-white font-semibold">MCA</span>, I am strongly focused on becoming a 
+        <span className="text-emerald-400 font-semibold"> Software Development Engineer (SDE)</span> by mastering 
+        <span className="text-purple-400"> Data Structures & Algorithms</span>.
+      </p>
+
+      <p className="text-gray-300 text-lg leading-relaxed mb-6">
+        Alongside web development, I am actively learning 
+        <span className="text-emerald-400"> Java & C++</span> and completing a 
+        <span className="text-purple-400"> 3-month Java Coursera course</span>.
+      </p>
+
+      <p className="text-gray-400 text-md leading-relaxed">
+        I build projects to improve real-world coding skills, write clean scalable code, and continuously grow as a developer ready for industry challenges.
+      </p>
+
+    </div>
+  </div>
+</section>
+
+     {/* Skills Section */}
+<section
+  id="skills"
+  className="min-h-screen flex flex-col items-center justify-center px-6 py-24"
+>
+  <div
+    className={`max-w-6xl w-full transition-all duration-1000 ${
+      isVisible.skills
+        ? "opacity-100 translate-y-0"
+        : "opacity-0 translate-y-10"
+    }`}
+  >
+    <h2 className="text-4xl md:text-5xl font-bold mb-16 text-center bg-gradient-to-r from-purple-400 to-pink-500 bg-clip-text text-transparent">
+      Skills & Expertise
+    </h2>
+
+    {/* Core Skills */}
+    <div className="mb-16">
+      <h3 className="text-2xl font-semibold mb-8 text-center text-purple-300">
+        Core Web Development
+      </h3>
+
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6">
+        {[
+          "HTML",
+          "CSS",
+          "JavaScript",
+          "React",
+          "Tailwind CSS",
+          "MERN Stack",
+        ].map((skill, index) => (
+          <div
+            key={skill}
+            className="bg-white/5 border border-white/10 rounded-2xl p-6 text-center hover:border-purple-500/50 hover:scale-105 transition-all duration-300"
+            style={{ animationDelay: `${index * 0.05}s` }}
+          >
+            <p className="text-lg font-semibold text-white">{skill}</p>
           </div>
-        </div>
-      </section>
+        ))}
+      </div>
+    </div>
 
-      {/* Skills Section */}
-      <section
-        id="skills"
-        className="min-h-screen flex flex-col items-center justify-center px-6 py-20"
-      >
-        <div
-          className={`max-w-6xl w-full transition-all duration-1000 ${
-            isVisible.skills ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"
-          }`}
-        >
-          <h2 className="text-4xl md:text-5xl font-bold mb-12 text-center bg-gradient-to-r from-purple-400 to-pink-600 bg-clip-text text-transparent">
-            Skills & Technologies
-          </h2>
-          
-          {/* Technical Skills */}
-          <div className="mb-12">
-            <h3 className="text-2xl font-semibold mb-6 text-center text-purple-300">Technical Skills</h3>
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-              {skills.map((skill, index) => (
-                <div
-                  key={skill.name}
-                  className="bg-white/5 backdrop-blur-sm rounded-xl p-6 text-center hover:bg-purple-600/20 transition-all duration-300 border border-purple-500/20 hover:scale-105 hover:border-purple-500/40 flex flex-col items-center gap-3"
-                  style={{ animationDelay: `${index * 0.05}s` }}
-                >
-                  <skill.icon className="w-8 h-8 text-purple-400" />
-                  <span className="text-lg font-semibold">{skill.name}</span>
-                </div>
-              ))}
-            </div>
+    {/* Learning & Growth */}
+    <div className="mb-16">
+      <h3 className="text-2xl font-semibold mb-8 text-center text-emerald-300">
+        Currently Learning & Growing
+      </h3>
+
+      <div className="grid md:grid-cols-2 gap-6">
+        {[
+          "Hands-on Java Development",
+          "C++ Programming",
+          "Data Structures & Algorithms (DSA)",
+          "Java Coursera Course (3 Months)",
+        ].map((item, index) => (
+          <div
+            key={item}
+            className="bg-white/5 border border-white/10 rounded-2xl p-6 hover:border-emerald-500/50 hover:scale-105 transition-all duration-300"
+            style={{ animationDelay: `${index * 0.05}s` }}
+          >
+            <p className="text-lg font-medium text-gray-200">{item}</p>
           </div>
+        ))}
+      </div>
+    </div>
 
-          {/* Hobbies */}
-          <div className="mb-12">
-            <h3 className="text-2xl font-semibold mb-6 text-center text-pink-300">Hobbies & Interests</h3>
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-              {hobbies.map((hobby, index) => (
-                <div
-                  key={hobby.name}
-                  className="bg-white/5 backdrop-blur-sm rounded-xl p-6 text-center hover:bg-pink-600/20 transition-all duration-300 border border-pink-500/20 hover:scale-105 hover:border-pink-500/40 flex flex-col items-center gap-3"
-                  style={{ animationDelay: `${index * 0.05}s` }}
-                >
-                  <hobby.icon className="w-8 h-8 text-pink-400" />
-                  <span className="text-lg font-semibold">{hobby.name}</span>
-                </div>
-              ))}
-            </div>
-          </div>
+    {/* Focus Statement */}
+    <div className="text-center max-w-3xl mx-auto">
+      <p className="text-gray-400 text-lg leading-relaxed">
+        I actively build web development projects to strengthen my coding
+        skills and apply real-world concepts. My current focus is mastering
+        <span className="text-purple-400 font-semibold"> DSA</span> and writing
+        clean, scalable code while growing as a developer.
+      </p>
+    </div>
+  </div>
+</section>
 
-          {/* Soft Skills */}
-          <div>
-            <h3 className="text-2xl font-semibold mb-6 text-center text-blue-300">Soft Skills</h3>
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-              {softSkills.map((skill, index) => (
-                <div
-                  key={skill.name}
-                  className="bg-white/5 backdrop-blur-sm rounded-xl p-6 text-center hover:bg-blue-600/20 transition-all duration-300 border border-blue-500/20 hover:scale-105 hover:border-blue-500/40 flex flex-col items-center gap-3"
-                  style={{ animationDelay: `${index * 0.05}s` }}
-                >
-                  <skill.icon className="w-8 h-8 text-blue-400" />
-                  <span className="text-lg font-semibold">{skill.name}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      </section>
+{/* Projects Section */}
+<section
+  id="projects"
+  className="min-h-screen flex flex-col items-center justify-center px-6 py-24"
+>
+  <div
+    className={`max-w-6xl w-full transition-all duration-1000 ${
+      isVisible.projects
+        ? "opacity-100 translate-y-0"
+        : "opacity-0 translate-y-10"
+    }`}
+  >
+    <h2 className="text-4xl md:text-5xl font-bold mb-12 text-center bg-gradient-to-r from-purple-400 to-pink-500 bg-clip-text text-transparent">
+      Projects
+    </h2>
 
-      {/* Projects Section */}
-      <section
-        id="projects"
-        className="min-h-screen flex flex-col items-center justify-center px-6 py-20"
-      >
-        <div
-          className={`max-w-6xl w-full transition-all duration-1000 ${
-            isVisible.projects ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"
-          }`}
-        >
-          <h2 className="text-4xl md:text-5xl font-bold mb-12 text-center bg-gradient-to-r from-purple-400 to-pink-600 bg-clip-text text-transparent">
-              Projects will be updated soon
-          </h2>
-        </div>
-      </section>
+    <div className="text-center">
+      <p className="text-gray-300 text-lg mb-4">
+        Currently building and improving real-world projects to enhance my
+        development skills.
+      </p>
 
+      <p className="text-purple-400 font-semibold text-xl">
+        🚀 New projects will be added soon
+      </p>
+    </div>
+  </div>
+</section>
       {/* Contact Section */}
       <section
         id="contact"
