@@ -236,7 +236,7 @@ const Home = () => {
       
       {/* GitHub */}
       <a
-        href="#" // 👉 add GitHub link later
+        href="https://github.com/masterLELOUCH7" // 👉 add GitHub link later
         className="hover:text-white transition hover:scale-125"
       >
         <Github size={24} />
@@ -244,7 +244,7 @@ const Home = () => {
 
       {/* LinkedIn */}
       <a
-        href="#" // 👉 add LinkedIn link later
+        href="https://www.linkedin.com/in/vikram-das-6377682b9/" // 👉 add LinkedIn link later
         className="hover:text-blue-400 transition hover:scale-125"
       >
         <Linkedin size={24} />
@@ -340,6 +340,7 @@ const Home = () => {
           "React",
           "Tailwind CSS",
           "MERN Stack",
+          "Python",
         ].map((skill, index) => (
           <div
             key={skill}
@@ -388,34 +389,72 @@ const Home = () => {
   </div>
 </section>
 
-{/* Projects Section */}
-<section
-  id="projects"
-  className="min-h-screen flex flex-col items-center justify-center px-6 py-24"
->
-  <div
-    className={`max-w-6xl w-full transition-all duration-1000 ${
-      isVisible.projects
-        ? "opacity-100 translate-y-0"
-        : "opacity-0 translate-y-10"
-    }`}
-  >
-    <h2 className="text-4xl md:text-5xl font-bold mb-12 text-center bg-gradient-to-r from-purple-400 to-pink-500 bg-clip-text text-transparent">
-      Projects
-    </h2>
+    
+    {/* PROJECTS GRID - 2x2 Layout & Full-Bleed Previews */}
+<div id="projects" className="grid grid-cols-1 md:grid-cols-2 gap-10 max-w-5xl mx-auto">
+  {[
+    { name: "docconnectez", url: "https://docconnectez.netlify.app", tags: ["React", "Health"] },
+    { name: "vikk-3d", url: "https://vikk-3d.netlify.app", tags: ["Three.js", "3D"] },
+    { name: "findnwinjobs", url: "https://findnwinjobs.netlify.app", tags: ["MERN", "Jobs"] },
+    { name: "vik-cafe-managemant", url: "https://vik-cafe-managemant.netlify.app", tags: ["HTML,CSS,JS", "Restro-management"] },
+  ].map((project, i) => (
+    <div
+      key={i}
+      className="group w-full backdrop-blur-xl bg-white/5 border border-white/10 rounded-3xl overflow-hidden shadow-2xl hover:border-purple-500/50 transition-all duration-500"
+    >
+      {/* VISUAL PREVIEW - No Black Bars */}
+      <div className="relative w-full h-[250px] overflow-hidden bg-transparent">
+        <iframe
+          src={project.url}
+          title={project.name}
+          /* Logic: 125% width + 0.8 scale = 100% visual fit. 
+             This removes the 'black background' by filling the entire container.
+          */
+          className="w-[125%] h-[125%] scale-[0.8] origin-top-left pointer-events-none grayscale-[0.3] group-hover:grayscale-0 group-hover:scale-[0.85] transition-all duration-700"
+          loading="lazy"
+        />
+        
+        {/* Sleek Gradient Overlay */}
+        <div className="absolute inset-0 bg-gradient-to-t from-[#0a0014] via-transparent to-transparent opacity-60 group-hover:opacity-20 transition-opacity duration-500" />
+      </div>
 
-    <div className="text-center">
-      <p className="text-gray-300 text-lg mb-4">
-        Currently building and improving real-world projects to enhance my
-        development skills.
-      </p>
+      {/* PROJECT INFO */}
+      <div className="p-6 bg-[#0a0014]/40">
+        <div className="flex justify-between items-center mb-3">
+          <h3 className="text-white font-bold text-xl capitalize">
+            {project.name.replace(/-/g, ' ')}
+          </h3>
+          <div className="flex gap-2">
+            {project.tags?.map(tag => (
+              <span key={tag} className="text-[10px] font-bold text-pink-400 border border-pink-500/20 bg-pink-500/5 px-2 py-1 rounded-md uppercase tracking-wider">
+                {tag}
+              </span>
+            ))}
+          </div>
+        </div>
 
-      <p className="text-purple-400 font-semibold text-xl">
-        🚀 New projects will be added soon
-      </p>
+        <div className="flex items-center justify-between mt-6">
+          <a
+            href={project.url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="group/link flex items-center gap-2 text-purple-400 font-bold text-sm hover:text-white transition-colors"
+          >
+            Explore Project
+            <svg 
+              className="w-4 h-4 transform group-hover/link:translate-x-1 transition-transform" 
+              fill="none" 
+              stroke="currentColor" 
+              viewBox="0 0 24 24"
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 8l4 4m0 0l-4 4m4-4H3" />
+            </svg>
+          </a>
+        </div>
+      </div>
     </div>
-  </div>
-</section>
+  ))}
+</div>
       {/* Contact Section */}
       <section
         id="contact"
