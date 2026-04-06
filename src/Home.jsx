@@ -224,8 +224,10 @@ const Home = () => {
 
       {/* Resume Button */}
       <a
-        href="#" // 👉 replace with /resume.pdf later
-        className="bg-white/10 border border-white/20 hover:bg-white/20 px-8 py-3 rounded-xl transition hover:scale-105"
+        href="/resume.pdf" // Matches the filename in your /public folder
+        target="_blank"    // Opens in a new tab
+        rel="noopener noreferrer" // Security best practice for target="_blank"
+        className="bg-white/10 border border-white/20 hover:bg-white/20 px-8 py-3 rounded-xl transition hover:scale-105 inline-block"
       >
         Resume
       </a>
