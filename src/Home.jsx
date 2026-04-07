@@ -97,24 +97,39 @@ const Home = () => {
   return (
     <div className="relative min-h-screen bg-gradient-to-b from-gray-900 via-purple-900 to-black text-white">
       {/* Animated Background */}
-      <div className="fixed inset-0 -z-10 overflow-hidden">
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-purple-900/20 via-gray-900 to-black"></div>
-        {[...Array(30)].map((_, i) => (
-          <div
-            key={i}
-            className="absolute rounded-full bg-purple-500/20 animate-pulse"
-            style={{
-              left: `${Math.random() * 100}%`,
-              top: `${Math.random() * 100}%`,
-              width: `${Math.random() * 300 + 50}px`,
-              height: `${Math.random() * 300 + 50}px`,
-              animationDelay: `${Math.random() * 3}s`,
-              animationDuration: `${Math.random() * 5 + 3}s`,
-              filter: "blur(60px)",
-            }}
-          />
-        ))}
-      </div>
+        <div className="fixed inset-0 -z-10 overflow-hidden">
+
+          {/* Inline animation styles */}
+          <style>
+            {`
+              @keyframes float {
+                0% { transform: translateY(0px); }
+                50% { transform: translateY(-30px); }
+                100% { transform: translateY(0px); }
+              }
+            `}
+          </style>
+
+          {/* Background Gradient */}
+          <div className="absolute inset-0 bg-gradient-to-br from-[#1a0129] via-[#0a0014] to-black"></div>
+
+          {[...Array(20)].map((_, i) => (
+            <div
+              key={i}
+              className="absolute rounded-full bg-purple-500/20"
+              style={{
+                left: `${(i * 37) % 100}%`,
+                top: `${(i * 53) % 100}%`,
+                width: `${100 + (i * 15)}px`,
+                height: `${100 + (i * 15)}px`,
+                animation: `float ${10 + i}s ease-in-out infinite`,
+                animationDelay: `${i * 0.3}s`,
+                filter: "blur(80px)",
+              }}
+            />
+          ))}
+
+        </div>
 
       {/* Navbar */}
       <nav className="fixed top-0 left-0 w-full bg-black/30 backdrop-blur-lg shadow-lg z-50 border-b border-purple-500/20">
