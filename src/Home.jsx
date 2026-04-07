@@ -103,137 +103,173 @@ const Home = () => {
             animationDelay: `${orb.delay}s`,
           }} />
         ))}
-        <style>{`
-  /* 1. GLOBAL PERFORMANCE FIXES */
-  html {
-    scrollbar-gutter: stable; /* Prevents layout shift */
-    scroll-behavior: smooth;
-  }
+            <style>{`
+      /* 1. LAYOUT & PERFORMANCE BASE */
+      html {
+        scrollbar-gutter: stable;
+        scroll-behavior: smooth;
+        background-color: #0d0018; /* Match your theme to prevent white flashes */
+      }
 
-  /* Force GPU acceleration on heavy elements to prevent white screens */
-  .skill-card, 
-  .project-card, 
-  .section-fade, 
-  .social-icon,
-  .btn-primary,
-  .btn-outline {
-    will-change: transform, opacity;
-    transform: translateZ(0); /* Trigger hardware acceleration */
-    backface-visibility: hidden;
-  }
+      body {
+        overflow-x: hidden;
+        width: 100%;
+      }
 
-  /* 2. OPTIMIZED ANIMATIONS */
-  @keyframes floatOrb { 
-    0%, 100% { transform: translateY(0); } 
-    50% { transform: translateY(-20px); } 
-  }
+      /* GPU Acceleration - The "White Screen" Killer */
+      .skill-card, 
+      .project-card, 
+      .section-fade, 
+      .glass-panel,
+      .hero-img {
+        will-change: transform, opacity;
+        transform: translateZ(0); 
+        backface-visibility: hidden;
+      }
+        .btn-outline {
+  background: transparent;
+  border: 1px solid #a78bfa;
+  color: #a78bfa;
+  padding: 12px 28px;
+  border-radius: 12px;
+  font-weight: 600;
+  transition: all 0.3s;
+  cursor: pointer;
+}
+.btn-outline:hover {
+  background: rgba(167,139,250,0.1);
+  transform: translateY(-2px);
+}
 
-  @keyframes hero-float {
-    0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-15px); }
-  }
+      /* 2. MODERN GLASSMORPHISM EFFECT */
+      .glass-panel {
+        background: rgba(255, 255, 255, 0.03);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        border: 1px solid rgba(167, 139, 250, 0.1);
+        border-radius: 24px;
+        padding: 2rem;
+      }
 
-  @keyframes fadeSlideUp { 
-    from { opacity: 0; transform: translateY(20px); } 
-    to { opacity: 1; transform: translateY(0); } 
-  }
+      /* 3. REFINED ANIMATIONS */
+      @keyframes hero-float {
+        0%, 100% { transform: translateY(0) translateZ(0); }
+        50% { transform: translateY(-15px) translateZ(0); }
+      }
 
-  /* 3. CORE STYLES */
-  .nav-link { 
-    transition: color 0.3s ease, transform 0.3s ease; 
-    cursor: pointer; 
-    font-size: 15px; 
-    font-weight: 500; 
-    color: rgba(255,255,255,0.75); 
-  }
-  .nav-link:hover, .nav-link.active { 
-    color: #a78bfa; 
-    transform: translateY(-1px); 
-  }
+      @keyframes fadeSlideUp { 
+        from { opacity: 0; transform: translateY(20px) translateZ(0); } 
+        to { opacity: 1; transform: translateY(0) translateZ(0); } 
+      }
 
-  .btn-primary { 
-    background: linear-gradient(135deg, #7c3aed, #db2777); 
-    border: none; 
-    color: white; 
-    padding: 12px 28px; 
-    border-radius: 12px; 
-    font-weight: 600; 
-    transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1); 
-  }
-  .btn-primary:hover { 
-    transform: translateY(-3px); 
-    box-shadow: 0 10px 20px rgba(124,58,237,0.3); 
-  }
+      .anime-float {
+        animation: hero-float 5s ease-in-out infinite;
+      }
 
-  .skill-card { 
-    background: rgba(255,255,255,0.04); 
-    border: 1px solid rgba(167,139,250,0.15); 
-    border-radius: 14px; 
-    padding: 16px 20px; 
-    transition: transform 0.3s ease, border-color 0.3s ease, background 0.3s ease; 
-  }
-  .skill-card:hover { 
-    border-color: rgba(167,139,250,0.5); 
-    transform: translateY(-4px); 
-    background: rgba(124,58,237,0.08); 
-  }
+      /* 4. COMPONENT STYLES */
+      .nav-link { 
+        transition: color 0.3s ease; 
+        cursor: pointer; 
+        font-size: 15px; 
+        color: rgba(255,255,255,0.7); 
+      }
+      .nav-link:hover, .nav-link.active { 
+        color: #a78bfa; 
+      }
 
-  .project-card { 
-    background: rgba(255,255,255,0.04); 
-    border: 1px solid rgba(255,255,255,0.08); 
-    border-radius: 20px; 
-    overflow: hidden; 
-    transition: transform 0.4s cubic-bezier(0.165, 0.84, 0.44, 1), border-color 0.4s ease; 
-  }
-  .project-card:hover { 
-    border-color: rgba(167,139,250,0.4); 
-    transform: translateY(-6px); 
-  }
+      .btn-primary { 
+        background: linear-gradient(135deg, #7c3aed, #db2777); 
+        border: none; 
+        color: white; 
+        padding: 12px 28px; 
+        border-radius: 12px; 
+        font-weight: 600; 
+        transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.3s;
+      }
+      .btn-primary:hover { 
+        transform: scale(1.05); 
+        box-shadow: 0 0 20px rgba(124,58,237,0.4); 
+      }
 
-  .gradient-text { 
-    background: linear-gradient(135deg, #a78bfa, #f472b6); 
-    -webkit-background-clip: text; 
-    -webkit-text-fill-color: transparent; 
-    background-clip: text; 
-  }
+      .skill-card { 
+        background: rgba(255,255,255,0.03); 
+        border: 1px solid rgba(167,139,250,0.1); 
+        border-radius: 16px; 
+        padding: 1rem 1.5rem; 
+        transition: all 0.3s ease;
+      }
+      .skill-card:hover { 
+        border-color: #a78bfa;
+        background: rgba(124,58,237,0.05);
+        transform: translateY(-5px);
+      }
 
-  .section-fade { 
-    transition: opacity 0.6s ease-out, transform 0.6s ease-out; 
-  }
-  .section-fade.hidden { 
-    opacity: 0; 
-    transform: translateY(30px); 
-  }
-  .section-fade.visible { 
-    opacity: 1; 
-    transform: translateY(0); 
-  }
+      .project-card { 
+        background: rgba(255,255,255,0.03); 
+        border: 1px solid rgba(255,255,255,0.05); 
+        border-radius: 20px; 
+        overflow: hidden; 
+        transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.4s;
+      }
+      .project-card:hover { 
+        border-color: rgba(167,139,250,0.3);
+        transform: translateY(-8px);
+      }
 
-  .input-field { 
-    width: 100%; 
-    padding: 12px 16px; 
-    background: rgba(255,255,255,0.05); 
-    border: 1px solid rgba(167,139,250,0.25); 
-    border-radius: 10px; 
-    color: white; 
-    outline: none; 
-    transition: border-color 0.3s ease; 
-  }
-  .input-field:focus { 
-    border-color: #7c3aed; 
-    background: rgba(255,255,255,0.08);
-  }
+      .gradient-text {
+        background: linear-gradient(135deg, #a78bfa, #f472b6);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        font-weight: 800;
+      }
 
-  /* 4. RESPONSIVE UTILITIES */
-  @media (max-width: 768px) {
-    .project-grid {
-      grid-template-columns: 1fr !important;
-    }
-    .section-fade.hidden {
-      transform: translateY(15px); /* Smaller movement on mobile for speed */
-    }
-  }
-`}</style>
+      .section-fade { 
+        transition: opacity 0.8s ease-out, transform 0.8s ease-out; 
+      }
+      .section-fade.hidden { 
+        opacity: 0; 
+        transform: translateY(30px); 
+      }
+      .section-fade.visible { 
+        opacity: 1; 
+        transform: translateY(0); 
+      }
+
+      .input-field { 
+        width: 100%; 
+        padding: 14px; 
+        background: rgba(255,255,255,0.04); 
+        border: 1px solid rgba(167,139,250,0.2); 
+        border-radius: 12px; 
+        color: white; 
+        transition: border-color 0.3s, background 0.3s;
+      }
+      .input-field:focus { 
+        border-color: #a78bfa; 
+        background: rgba(255,255,255,0.07);
+        outline: none;
+      }
+
+      /* 5. MOBILE OPTIMIZATIONS */
+      @media (max-width: 768px) {
+        .glass-panel { padding: 1.5rem; }
+        
+        .project-grid {
+          grid-template-columns: 1fr !important;
+          padding: 0 10px;
+        }
+
+        /* Disable heavy blurs on mobile to save performance */
+        .bg-orb {
+          filter: blur(40px) !important;
+          opacity: 0.4 !important;
+        }
+
+        .section-fade.hidden {
+          transform: translateY(15px);
+        }
+      }
+    `}</style>
       </div>
 
       {/* ── Navbar ── */}
@@ -314,8 +350,7 @@ const Home = () => {
             <div style={{ display: "flex", gap: 20, justifyContent: "flex-end", marginTop: 32 }}>
               <a href="https://github.com/masterLELOUCH7" target="_blank" rel="noopener noreferrer" className="social-icon"><Github size={22} /></a>
               <a href="https://www.linkedin.com/in/vikram-das-6377682b9/" target="_blank" rel="noopener noreferrer" className="social-icon"><Linkedin size={22} /></a>
-              <a href="#" className="social-icon"><Instagram size={22} /></a>
-              <a href="#" className="social-icon"><Twitter size={22} /></a>
+              <a href="https://instagram.com/kaizenvikk/" target="_blank" rel="noopener noreferrer" className="social-icon" className="social-icon"><Instagram size={22} /></a>
             </div>
           </div>
         </div>
@@ -396,41 +431,103 @@ const Home = () => {
       </section>
 
       {/* ━━━━━━━━━━ PROJECTS SECTION ━━━━━━━━━━ */}
-      <section id="projects" style={{ minHeight: "80vh", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "80px 5%", position: "relative", zIndex: 1 }}>
-        <div style={{ maxWidth: 1000, width: "100%" }}>
-          <p style={{ color: "#a78bfa", fontSize: 13, letterSpacing: "0.15em", textTransform: "uppercase", marginBottom: 10, textAlign: "center" }}>What I've Built</p>
-          <h2 style={{ fontSize: "clamp(2rem,4vw,3rem)", fontWeight: 800, marginBottom: 48, textAlign: "center" }}>
-            <span className="gradient-text">Projects</span>
-          </h2>
+<section id="projects" style={{ minHeight: "100vh", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "80px 5%", position: "relative", zIndex: 1 }}>
+  <div style={{ maxWidth: 1200, width: "100%" }}>
+    <p style={{ color: "#a78bfa", fontSize: 13, letterSpacing: "0.15em", textTransform: "uppercase", marginBottom: 10, textAlign: "center" }}>What I've Built</p>
+    <h2 style={{ fontSize: "clamp(2rem, 5vw, 3.5rem)", fontWeight: 800, marginBottom: 48, textAlign: "center" }}>
+      <span className="gradient-text">Featured Projects</span>
+    </h2>
 
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(420px, 1fr))", gap: 24 }}>
-            {projects.map((p, i) => (
-              <div key={i} className="project-card">
-                <div style={{ height: 220, overflow: "hidden", position: "relative", background: "#0d0018" }}>
-                  <iframe src={p.url} title={p.name}
-                    style={{ width: "125%", height: "125%", transform: "scale(0.8)", transformOrigin: "top left", pointerEvents: "none", filter: "grayscale(0.2)" }}
-                    loading="lazy" />
-                  <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to top, rgba(13,0,24,0.9) 0%, transparent 60%)" }} />
-                </div>
-                <div style={{ padding: "20px 24px 24px" }}>
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 12 }}>
-                    <h3 style={{ fontSize: 18, fontWeight: 700, textTransform: "capitalize", color: "white" }}>{p.name.replace(/-/g, " ")}</h3>
-                    <div style={{ display: "flex", gap: 6, flexWrap: "wrap", justifyContent: "flex-end" }}>
-                      {p.tags.map(t => (
-                        <span key={t} style={{ fontSize: 11, fontWeight: 700, color: "#f472b6", border: "1px solid rgba(244,114,182,0.25)", background: "rgba(244,114,182,0.08)", padding: "3px 8px", borderRadius: 6, letterSpacing: "0.05em", textTransform: "uppercase" }}>{t}</span>
-                      ))}
-                    </div>
-                  </div>
-                  <a href={p.url} target="_blank" rel="noopener noreferrer"
-                    style={{ display: "inline-flex", alignItems: "center", gap: 6, color: "#a78bfa", fontWeight: 600, fontSize: 14, textDecoration: "none", transition: "color 0.2s" }}>
-                    Explore Project <ExternalLink size={14} />
-                  </a>
-                </div>
+    {/* GRID FIX: 
+        min(100%, 500px) ensures that on small screens the card is 100% width, 
+        but on large screens it stays around 500px.
+    */}
+    <div style={{ 
+      display: "grid", 
+      gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 500px), 1fr))", 
+      gap: "clamp(20px, 4vw, 40px)" 
+    }}>
+      {projects.map((p, i) => (
+        <div key={i} className="project-card" style={{ 
+          background: "#0d0018", 
+          borderRadius: 24, 
+          overflow: "hidden", 
+          border: "1px solid rgba(167, 139, 250, 0.2)",
+          transition: "transform 0.3s ease",
+          boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.5)",
+          display: "flex",
+          flexDirection: "column"
+        }}>
+          
+          {/* THE IFRAME VIEWPORT */}
+          <div style={{ 
+            height: "clamp(250px, 40vh, 380px)", // Shorter height on mobile
+            overflow: "hidden", 
+            position: "relative", 
+            background: "#ffffff" 
+          }}>
+            <iframe 
+              src={p.url} 
+              title={p.name}
+              style={{ 
+                width: "1400px", 
+                height: "1000px", 
+                border: "none",
+                // SCALE FIX: transformOrigin '0 0' is vital for mobile alignment
+                transform: "scale(min(0.42, 0.3))", // Slightly smaller scale for mobile if needed
+                transformOrigin: "top left",
+                pointerEvents: "none"
+              }}
+              loading="lazy" 
+            />
+            <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: 60, background: "linear-gradient(to top, #0d0018, transparent)" }} />
+          </div>
+
+          {/* CONTENT AREA */}
+          <div style={{ padding: "clamp(20px, 5vw, 32px)", flexGrow: 1, display: "flex", flexDirection: "column" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 16, flexWrap: "wrap", gap: 10 }}>
+              <h3 style={{ fontSize: "clamp(20px, 3vw, 26px)", fontWeight: 800, textTransform: "capitalize", color: "#ffffff" }}>
+                {p.name.replace(/-/g, " ")}
+              </h3>
+              <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+                {p.tags.map(t => (
+                  <span key={t} style={{ fontSize: 10, fontWeight: 700, color: "#f472b6", border: "1px solid rgba(244,114,182,0.3)", background: "rgba(244,114,182,0.1)", padding: "3px 8px", borderRadius: 6, textTransform: "uppercase" }}>
+                    {t}
+                  </span>
+                ))}
               </div>
-            ))}
+            </div>
+            
+            <p style={{ color: "#94a3b8", lineHeight: "1.6", marginBottom: 24, fontSize: "clamp(14px, 2vw, 16px)", flexGrow: 1 }}>
+              A high-performance web application built with modern technologies. 
+              Explore the live version to see the full feature set.
+            </p>
+
+            <a href={p.url} target="_blank" rel="noopener noreferrer"
+              style={{ 
+                display: "inline-flex", 
+                alignItems: "center", 
+                justifyContent: "center",
+                gap: 10, 
+                color: "#ffffff", 
+                background: "linear-gradient(135deg, #7c3aed 0%, #4f46e5 100%)",
+                padding: "14px 24px",
+                borderRadius: "12px",
+                fontWeight: 600, 
+                fontSize: 15, 
+                textDecoration: "none", 
+                transition: "all 0.3s ease",
+                boxShadow: "0 10px 15px -3px rgba(124, 58, 237, 0.4)",
+                width: "fit-content"
+              }}>
+              View Project <ExternalLink size={18} />
+            </a>
           </div>
         </div>
-      </section>
+      ))}
+    </div>
+  </div>
+</section>
 
       {/* ━━━━━━━━━━ CONTACT SECTION ━━━━━━━━━━ */}
       <section id="contact" style={{ minHeight: "80vh", display: "flex", alignItems: "center", justifyContent: "center", padding: "80px 5%", position: "relative", zIndex: 1 }}>
