@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import { useRef, useEffect, useState } from 'react';
 import logo from "./assets/images/logo.jpg";
 import sung from "./assets/images/sung.png";
 import {
@@ -8,25 +8,165 @@ import {
   Facebook, Twitter
 } from "lucide-react";
 
-/* ─── NEW IMAGE-BASED CHARACTER ─── */
+/* ─── LIGHTNING BACKGROUND (WebGL) ─── */
+const LightningBackground = () => {
+  const canvasRef = useRef(null);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    const resizeCanvas = () => {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    };
+    resizeCanvas();
+    window.addEventListener('resize', resizeCanvas);
+
+    const gl = canvas.getContext('webgl', { alpha: true, premultipliedAlpha: false });
+    if (!gl) return;
+
+    const vertexShaderSource = `
+      attribute vec2 aPosition;
+      void main() { gl_Position = vec4(aPosition, 0.0, 1.0); }
+    `;
+
+    const fragmentShaderSource = `
+      precision mediump float;
+      uniform vec2 iResolution;
+      uniform float iTime;
+      #define OCTAVE_COUNT 10
+
+      float hash11(float p) {
+        p = fract(p * .1031); p *= p + 33.33; p *= p + p; return fract(p);
+      }
+      float hash12(vec2 p) {
+        vec3 p3 = fract(vec3(p.xyx) * .1031);
+        p3 += dot(p3, p3.yzx + 33.33);
+        return fract((p3.x + p3.y) * p3.z);
+      }
+      mat2 rotate2d(float theta) {
+        float c = cos(theta); float s = sin(theta); return mat2(c,-s,s,c);
+      }
+      float noise(vec2 p) {
+        vec2 ip = floor(p); vec2 fp = fract(p);
+        float a = hash12(ip); float b = hash12(ip+vec2(1,0));
+        float c2 = hash12(ip+vec2(0,1)); float d = hash12(ip+vec2(1,1));
+        vec2 t = smoothstep(0.,1.,fp);
+        return mix(mix(a,b,t.x),mix(c2,d,t.x),t.y);
+      }
+      float fbm(vec2 p) {
+        float value = 0.; float amplitude = 0.5;
+        for(int i=0;i<OCTAVE_COUNT;i++){
+          value += amplitude * noise(p);
+          p *= rotate2d(0.45); p *= 2.; amplitude *= 0.5;
+        }
+        return value;
+      }
+      vec3 hsv2rgb(vec3 c) {
+        vec3 rgb = clamp(abs(mod(c.x*6.+vec3(0,4,2),6.)-3.)-1.,0.,1.);
+        return c.z * mix(vec3(1.), rgb, c.y);
+      }
+      vec4 bolt(vec2 uv, float xOff, float hue, float speed) {
+        vec2 p = uv; p.x += xOff;
+        p += 2.0 * fbm(p * 1.1 + 0.8 * iTime * speed) - 1.0;
+        float dist = abs(p.x);
+        vec3 col = hsv2rgb(vec3(hue/360., 0.7, 0.9))
+                   * pow(mix(0.,0.07,hash11(iTime*speed)) / dist, 1.0);
+        float a = clamp(max(col.r,max(col.g,col.b)),0.,1.);
+        return vec4(col, a);
+      }
+      void main() {
+        vec2 uv = gl_FragCoord.xy / iResolution.xy;
+        uv = 2.*uv - 1.;
+        uv.x *= iResolution.x / iResolution.y;
+        vec4 c = vec4(0.);
+        c += bolt(uv, -0.6, 270., 0.5) * 0.75;
+        c += bolt(uv,  0.0, 245., 0.7) * 0.65;
+        c += bolt(uv,  0.6, 300., 0.4) * 0.75;
+        gl_FragColor = clamp(c, 0., 1.);
+      }
+    `;
+
+    const compile = (src, type) => {
+      const s = gl.createShader(type);
+      gl.shaderSource(s, src); gl.compileShader(s);
+      if (!gl.getShaderParameter(s, gl.COMPILE_STATUS)) { console.error(gl.getShaderInfoLog(s)); return null; }
+      return s;
+    };
+
+    const vs = compile(vertexShaderSource, gl.VERTEX_SHADER);
+    const fs = compile(fragmentShaderSource, gl.FRAGMENT_SHADER);
+    if (!vs || !fs) return;
+
+    const prog = gl.createProgram();
+    gl.attachShader(prog, vs); gl.attachShader(prog, fs); gl.linkProgram(prog);
+    gl.useProgram(prog);
+
+    const verts = new Float32Array([-1,-1,1,-1,-1,1,-1,1,1,-1,1,1]);
+    const buf = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+    gl.bufferData(gl.ARRAY_BUFFER, verts, gl.STATIC_DRAW);
+
+    const aPos = gl.getAttribLocation(prog, 'aPosition');
+    gl.enableVertexAttribArray(aPos);
+    gl.vertexAttribPointer(aPos, 2, gl.FLOAT, false, 0, 0);
+
+    const uRes = gl.getUniformLocation(prog, 'iResolution');
+    const uTime = gl.getUniformLocation(prog, 'iTime');
+
+    let animId;
+    const t0 = performance.now();
+    const render = () => {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+      gl.viewport(0, 0, canvas.width, canvas.height);
+      gl.uniform2f(uRes, canvas.width, canvas.height);
+      gl.uniform1f(uTime, (performance.now() - t0) / 1000.0);
+      gl.drawArrays(gl.TRIANGLES, 0, 6);
+      animId = requestAnimationFrame(render);
+    };
+    animId = requestAnimationFrame(render);
+
+    return () => {
+      window.removeEventListener('resize', resizeCanvas);
+      cancelAnimationFrame(animId);
+    };
+  }, []);
+
+  return (
+    <canvas
+      ref={canvasRef}
+      style={{
+        position: 'fixed',
+        top: 0, left: 0,
+        width: '100%', height: '100%',
+        zIndex: 0,
+        pointerEvents: 'none',
+        opacity: 0.6,
+      }}
+    />
+  );
+};
+
+/* ─── ANIME CHARACTER ─── */
 const AnimeCharacter = () => (
   <div className="relative flex justify-center items-center">
-    {/* This div creates the purple glow BEHIND the image */}
-    <div 
+    <div
       className="absolute w-[300px] h-[300px] bg-purple-600/30 rounded-full blur-[80px] -z-10 animate-pulse"
     />
-    
-    <img 
-      src={sung} 
-      alt="Solo Leveling Chibi" 
-      className="w-full h-auto object-contain max-w-[340px] relative z-10" 
-      style={{ 
+    <img
+      src={sung}
+      alt="Solo Leveling Chibi"
+      className="w-full h-auto object-contain max-w-[340px] relative z-10"
+      style={{
         filter: "drop-shadow(0 0 30px rgba(139,92,246,0.6))",
-        animation: "hero-float 6s infinite ease-in-out" 
-      }} 
+        animation: "hero-float 6s infinite ease-in-out"
+      }}
     />
   </div>
 );
+
 /* ─── MAIN COMPONENT ─── */
 const Home = () => {
   const [activeSection, setActiveSection] = useState("home");
@@ -86,7 +226,24 @@ const Home = () => {
   const navItems = ["Home", "About", "Skills", "Projects", "Contact"];
 
   return (
-    <div style={{ background: "linear-gradient(160deg, #0d0018 0%, #1a0035 40%, #0a000f 100%)", color: "white", minHeight: "100vh", fontFamily: "'Segoe UI', sans-serif", position: "relative", overflowX: "hidden" }}>
+    <div style={{
+      /*
+       * THE ONLY CHANGE from original:
+       * solid hex → rgba so the WebGL canvas (position:fixed, z:0) shows through.
+       * Original: "linear-gradient(160deg, #0d0018 0%, #1a0035 40%, #0a000f 100%)"
+       * Now:       same colours but ~88% opaque → lightning bleeds through
+       */
+      background: "linear-gradient(160deg, rgba(13,0,24,0.88) 0%, rgba(26,0,53,0.85) 40%, rgba(10,0,15,0.88) 100%)",
+      color: "white",
+      minHeight: "100vh",
+      fontFamily: "'Segoe UI', sans-serif",
+      position: "relative",
+      overflowX: "hidden",
+      zIndex: 1,
+    }}>
+
+      {/* ══ LIGHTNING CANVAS — fixed behind everything at z:0 ══ */}
+      <LightningBackground />
 
       {/* ── Background orbs ── */}
       <div style={{ position: "fixed", inset: 0, zIndex: 0, pointerEvents: "none", overflow: "hidden" }}>
@@ -103,173 +260,111 @@ const Home = () => {
             animationDelay: `${orb.delay}s`,
           }} />
         ))}
-            <style>{`
-      /* 1. LAYOUT & PERFORMANCE BASE */
-      html {
-        scrollbar-gutter: stable;
-        scroll-behavior: smooth;
-        background-color: #0d0018; /* Match your theme to prevent white flashes */
-      }
+        <style>{`
+          html { scrollbar-gutter: stable; scroll-behavior: smooth; background-color: #0d0018; }
+          body { overflow-x: hidden; width: 100%; }
 
-      body {
-        overflow-x: hidden;
-        width: 100%;
-      }
+          .skill-card, .project-card, .section-fade, .glass-panel, .hero-img {
+            will-change: transform, opacity;
+            transform: translateZ(0);
+            backface-visibility: hidden;
+          }
 
-      /* GPU Acceleration - The "White Screen" Killer */
-      .skill-card, 
-      .project-card, 
-      .section-fade, 
-      .glass-panel,
-      .hero-img {
-        will-change: transform, opacity;
-        transform: translateZ(0); 
-        backface-visibility: hidden;
-      }
-        .btn-outline {
-  background: transparent;
-  border: 1px solid #a78bfa;
-  color: #a78bfa;
-  padding: 12px 28px;
-  border-radius: 12px;
-  font-weight: 600;
-  transition: all 0.3s;
-  cursor: pointer;
-}
-.btn-outline:hover {
-  background: rgba(167,139,250,0.1);
-  transform: translateY(-2px);
-}
+          .btn-outline {
+            background: transparent;
+            border: 1px solid #a78bfa;
+            color: #a78bfa;
+            padding: 12px 28px;
+            border-radius: 12px;
+            font-weight: 600;
+            transition: all 0.3s;
+            cursor: pointer;
+          }
+          .btn-outline:hover { background: rgba(167,139,250,0.1); transform: translateY(-2px); }
 
-      /* 2. MODERN GLASSMORPHISM EFFECT */
-      .glass-panel {
-        background: rgba(255, 255, 255, 0.03);
-        backdrop-filter: blur(12px);
-        -webkit-backdrop-filter: blur(12px);
-        border: 1px solid rgba(167, 139, 250, 0.1);
-        border-radius: 24px;
-        padding: 2rem;
-      }
+          .glass-panel {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(167, 139, 250, 0.1);
+            border-radius: 24px;
+            padding: 2rem;
+          }
 
-      /* 3. REFINED ANIMATIONS */
-      @keyframes hero-float {
-        0%, 100% { transform: translateY(0) translateZ(0); }
-        50% { transform: translateY(-15px) translateZ(0); }
-      }
+          @keyframes hero-float {
+            0%, 100% { transform: translateY(0) translateZ(0); }
+            50% { transform: translateY(-15px) translateZ(0); }
+          }
+          @keyframes fadeSlideUp {
+            from { opacity: 0; transform: translateY(20px) translateZ(0); }
+            to   { opacity: 1; transform: translateY(0) translateZ(0); }
+          }
+          @keyframes floatOrb {
+            0%, 100% { transform: translateY(0px); }
+            50%       { transform: translateY(-20px); }
+          }
 
-      @keyframes fadeSlideUp { 
-        from { opacity: 0; transform: translateY(20px) translateZ(0); } 
-        to { opacity: 1; transform: translateY(0) translateZ(0); } 
-      }
+          .nav-link { transition: color 0.3s ease; cursor: pointer; font-size: 15px; color: rgba(255,255,255,0.7); }
+          .nav-link:hover, .nav-link.active { color: #a78bfa; }
 
-      .anime-float {
-        animation: hero-float 5s ease-in-out infinite;
-      }
+          .btn-primary {
+            background: linear-gradient(135deg, #7c3aed, #db2777);
+            border: none; color: white; padding: 12px 28px; border-radius: 12px;
+            font-weight: 600; cursor: pointer;
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.3s;
+          }
+          .btn-primary:hover { transform: scale(1.05); box-shadow: 0 0 20px rgba(124,58,237,0.4); }
 
-      /* 4. COMPONENT STYLES */
-      .nav-link { 
-        transition: color 0.3s ease; 
-        cursor: pointer; 
-        font-size: 15px; 
-        color: rgba(255,255,255,0.7); 
-      }
-      .nav-link:hover, .nav-link.active { 
-        color: #a78bfa; 
-      }
+          .skill-card {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(167,139,250,0.1);
+            border-radius: 16px; padding: 1rem 1.5rem; transition: all 0.3s ease;
+          }
+          .skill-card:hover { border-color: #a78bfa; background: rgba(124,58,237,0.05); transform: translateY(-5px); }
 
-      .btn-primary { 
-        background: linear-gradient(135deg, #7c3aed, #db2777); 
-        border: none; 
-        color: white; 
-        padding: 12px 28px; 
-        border-radius: 12px; 
-        font-weight: 600; 
-        transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.3s;
-      }
-      .btn-primary:hover { 
-        transform: scale(1.05); 
-        box-shadow: 0 0 20px rgba(124,58,237,0.4); 
-      }
+          .project-card {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.05);
+            border-radius: 20px; overflow: hidden;
+            transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.4s;
+          }
+          .project-card:hover { border-color: rgba(167,139,250,0.3); transform: translateY(-8px); }
 
-      .skill-card { 
-        background: rgba(255,255,255,0.03); 
-        border: 1px solid rgba(167,139,250,0.1); 
-        border-radius: 16px; 
-        padding: 1rem 1.5rem; 
-        transition: all 0.3s ease;
-      }
-      .skill-card:hover { 
-        border-color: #a78bfa;
-        background: rgba(124,58,237,0.05);
-        transform: translateY(-5px);
-      }
+          .gradient-text {
+            background: linear-gradient(135deg, #a78bfa, #f472b6);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-weight: 800;
+          }
 
-      .project-card { 
-        background: rgba(255,255,255,0.03); 
-        border: 1px solid rgba(255,255,255,0.05); 
-        border-radius: 20px; 
-        overflow: hidden; 
-        transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.4s;
-      }
-      .project-card:hover { 
-        border-color: rgba(167,139,250,0.3);
-        transform: translateY(-8px);
-      }
+          .section-fade { transition: opacity 0.8s ease-out, transform 0.8s ease-out; }
+          .section-fade.hidden  { opacity: 0; transform: translateY(30px); }
+          .section-fade.visible { opacity: 1; transform: translateY(0); }
 
-      .gradient-text {
-        background: linear-gradient(135deg, #a78bfa, #f472b6);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        font-weight: 800;
-      }
+          .input-field {
+            width: 100%; padding: 14px;
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(167,139,250,0.2);
+            border-radius: 12px; color: white;
+            font-family: inherit;
+            transition: border-color 0.3s, background 0.3s;
+          }
+          .input-field:focus { border-color: #a78bfa; background: rgba(255,255,255,0.07); outline: none; }
 
-      .section-fade { 
-        transition: opacity 0.8s ease-out, transform 0.8s ease-out; 
-      }
-      .section-fade.hidden { 
-        opacity: 0; 
-        transform: translateY(30px); 
-      }
-      .section-fade.visible { 
-        opacity: 1; 
-        transform: translateY(0); 
-      }
+          .social-icon { color: rgba(255,255,255,0.5); transition: color 0.3s, transform 0.3s; display: inline-flex; }
+          .social-icon:hover { color: #a78bfa; transform: translateY(-3px); }
 
-      .input-field { 
-        width: 100%; 
-        padding: 14px; 
-        background: rgba(255,255,255,0.04); 
-        border: 1px solid rgba(167,139,250,0.2); 
-        border-radius: 12px; 
-        color: white; 
-        transition: border-color 0.3s, background 0.3s;
-      }
-      .input-field:focus { 
-        border-color: #a78bfa; 
-        background: rgba(255,255,255,0.07);
-        outline: none;
-      }
-
-      /* 5. MOBILE OPTIMIZATIONS */
-      @media (max-width: 768px) {
-        .glass-panel { padding: 1.5rem; }
-        
-        .project-grid {
-          grid-template-columns: 1fr !important;
-          padding: 0 10px;
-        }
-
-        /* Disable heavy blurs on mobile to save performance */
-        .bg-orb {
-          filter: blur(40px) !important;
-          opacity: 0.4 !important;
-        }
-
-        .section-fade.hidden {
-          transform: translateY(15px);
-        }
-      }
-    `}</style>
+          @media (max-width: 768px) {
+            .desktop-nav { display: none !important; }
+            .hamburger   { display: block !important; }
+            .glass-panel { padding: 1.5rem; }
+            .project-grid { grid-template-columns: 1fr !important; padding: 0 10px; }
+            .bg-orb { filter: blur(40px) !important; opacity: 0.4 !important; }
+            .section-fade.hidden { transform: translateY(15px); }
+            section > div[style*="grid-template-columns: 1fr auto 1fr"] {
+              grid-template-columns: 1fr !important;
+              text-align: center;
+            }
+          }
+        `}</style>
       </div>
 
       {/* ── Navbar ── */}
@@ -279,7 +374,6 @@ const Home = () => {
             masterLELOUCH7
           </span>
 
-          {/* Desktop nav */}
           <ul style={{ display: "flex", gap: 36, listStyle: "none", margin: 0, padding: 0 }} className="desktop-nav">
             {navItems.map(item => (
               <li key={item} className={`nav-link ${activeSection === item.toLowerCase() ? "active" : ""}`}
@@ -287,7 +381,6 @@ const Home = () => {
             ))}
           </ul>
 
-          {/* Mobile hamburger */}
           <button onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
             style={{ display: "none", background: "none", border: "none", cursor: "pointer", color: "white", padding: 8 }}
             className="hamburger">
@@ -350,7 +443,7 @@ const Home = () => {
             <div style={{ display: "flex", gap: 20, justifyContent: "flex-end", marginTop: 32 }}>
               <a href="https://github.com/masterLELOUCH7" target="_blank" rel="noopener noreferrer" className="social-icon"><Github size={22} /></a>
               <a href="https://www.linkedin.com/in/vikram-das-6377682b9/" target="_blank" rel="noopener noreferrer" className="social-icon"><Linkedin size={22} /></a>
-              <a href="https://instagram.com/kaizenvikk/" target="_blank" rel="noopener noreferrer" className="social-icon" className="social-icon"><Instagram size={22} /></a>
+              <a href="https://instagram.com/kaizenvikk/" target="_blank" rel="noopener noreferrer" className="social-icon"><Instagram size={22} /></a>
             </div>
           </div>
         </div>
@@ -404,7 +497,6 @@ const Home = () => {
             <span className="gradient-text">Skills & Expertise</span>
           </h2>
 
-          {/* Core Web */}
           <h3 style={{ color: "#a78bfa", fontSize: 16, fontWeight: 600, marginBottom: 20, textAlign: "center" }}>Core Web Development</h3>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(130px, 1fr))", gap: 14, marginBottom: 40 }}>
             {["HTML5", "CSS3", "JavaScript", "React", "Tailwind CSS", "MERN Stack", "Python"].map(s => (
@@ -414,7 +506,6 @@ const Home = () => {
             ))}
           </div>
 
-          {/* Learning */}
           <h3 style={{ color: "#34d399", fontSize: 16, fontWeight: 600, marginBottom: 20, textAlign: "center" }}>Currently Learning & Growing</h3>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))", gap: 14, marginBottom: 40 }}>
             {["Hands-on Java Development", "C++ Programming", "Data Structures & Algorithms", "Java Coursera Course (3 Months)"].map(s => (
@@ -431,103 +522,95 @@ const Home = () => {
       </section>
 
       {/* ━━━━━━━━━━ PROJECTS SECTION ━━━━━━━━━━ */}
-<section id="projects" style={{ minHeight: "100vh", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "80px 5%", position: "relative", zIndex: 1 }}>
-  <div style={{ maxWidth: 1200, width: "100%" }}>
-    <p style={{ color: "#a78bfa", fontSize: 13, letterSpacing: "0.15em", textTransform: "uppercase", marginBottom: 10, textAlign: "center" }}>What I've Built</p>
-    <h2 style={{ fontSize: "clamp(2rem, 5vw, 3.5rem)", fontWeight: 800, marginBottom: 48, textAlign: "center" }}>
-      <span className="gradient-text">Featured Projects</span>
-    </h2>
+      <section id="projects" style={{ minHeight: "100vh", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "80px 5%", position: "relative", zIndex: 1 }}>
+        <div style={{ maxWidth: 1200, width: "100%" }}>
+          <p style={{ color: "#a78bfa", fontSize: 13, letterSpacing: "0.15em", textTransform: "uppercase", marginBottom: 10, textAlign: "center" }}>What I've Built</p>
+          <h2 style={{ fontSize: "clamp(2rem, 5vw, 3.5rem)", fontWeight: 800, marginBottom: 48, textAlign: "center" }}>
+            <span className="gradient-text">Featured Projects</span>
+          </h2>
 
-    {/* GRID FIX: 
-        min(100%, 500px) ensures that on small screens the card is 100% width, 
-        but on large screens it stays around 500px.
-    */}
-    <div style={{ 
-      display: "grid", 
-      gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 500px), 1fr))", 
-      gap: "clamp(20px, 4vw, 40px)" 
-    }}>
-      {projects.map((p, i) => (
-        <div key={i} className="project-card" style={{ 
-          background: "#0d0018", 
-          borderRadius: 24, 
-          overflow: "hidden", 
-          border: "1px solid rgba(167, 139, 250, 0.2)",
-          transition: "transform 0.3s ease",
-          boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.5)",
-          display: "flex",
-          flexDirection: "column"
-        }}>
-          
-          {/* THE IFRAME VIEWPORT */}
-          <div style={{ 
-            height: "clamp(250px, 40vh, 380px)", // Shorter height on mobile
-            overflow: "hidden", 
-            position: "relative", 
-            background: "#ffffff" 
+          <div style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 500px), 1fr))",
+            gap: "clamp(20px, 4vw, 40px)"
           }}>
-            <iframe 
-              src={p.url} 
-              title={p.name}
-              style={{ 
-                width: "1400px", 
-                height: "1000px", 
-                border: "none",
-                // SCALE FIX: transformOrigin '0 0' is vital for mobile alignment
-                transform: "scale(min(0.42, 0.3))", // Slightly smaller scale for mobile if needed
-                transformOrigin: "top left",
-                pointerEvents: "none"
-              }}
-              loading="lazy" 
-            />
-            <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: 60, background: "linear-gradient(to top, #0d0018, transparent)" }} />
-          </div>
-
-          {/* CONTENT AREA */}
-          <div style={{ padding: "clamp(20px, 5vw, 32px)", flexGrow: 1, display: "flex", flexDirection: "column" }}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 16, flexWrap: "wrap", gap: 10 }}>
-              <h3 style={{ fontSize: "clamp(20px, 3vw, 26px)", fontWeight: 800, textTransform: "capitalize", color: "#ffffff" }}>
-                {p.name.replace(/-/g, " ")}
-              </h3>
-              <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
-                {p.tags.map(t => (
-                  <span key={t} style={{ fontSize: 10, fontWeight: 700, color: "#f472b6", border: "1px solid rgba(244,114,182,0.3)", background: "rgba(244,114,182,0.1)", padding: "3px 8px", borderRadius: 6, textTransform: "uppercase" }}>
-                    {t}
-                  </span>
-                ))}
-              </div>
-            </div>
-            
-            <p style={{ color: "#94a3b8", lineHeight: "1.6", marginBottom: 24, fontSize: "clamp(14px, 2vw, 16px)", flexGrow: 1 }}>
-              A high-performance web application built with modern technologies. 
-              Explore the live version to see the full feature set.
-            </p>
-
-            <a href={p.url} target="_blank" rel="noopener noreferrer"
-              style={{ 
-                display: "inline-flex", 
-                alignItems: "center", 
-                justifyContent: "center",
-                gap: 10, 
-                color: "#ffffff", 
-                background: "linear-gradient(135deg, #7c3aed 0%, #4f46e5 100%)",
-                padding: "14px 24px",
-                borderRadius: "12px",
-                fontWeight: 600, 
-                fontSize: 15, 
-                textDecoration: "none", 
-                transition: "all 0.3s ease",
-                boxShadow: "0 10px 15px -3px rgba(124, 58, 237, 0.4)",
-                width: "fit-content"
+            {projects.map((p, i) => (
+              <div key={i} className="project-card" style={{
+                background: "#0d0018",
+                borderRadius: 24,
+                overflow: "hidden",
+                border: "1px solid rgba(167, 139, 250, 0.2)",
+                transition: "transform 0.3s ease",
+                boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.5)",
+                display: "flex",
+                flexDirection: "column"
               }}>
-              View Project <ExternalLink size={18} />
-            </a>
+                <div style={{
+                  height: "clamp(250px, 40vh, 380px)",
+                  overflow: "hidden",
+                  position: "relative",
+                  background: "#ffffff"
+                }}>
+                  <iframe
+                    src={p.url}
+                    title={p.name}
+                    style={{
+                      width: "1400px",
+                      height: "1000px",
+                      border: "none",
+                      transform: "scale(0.42)",
+                      transformOrigin: "top left",
+                      pointerEvents: "none"
+                    }}
+                    loading="lazy"
+                  />
+                  <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: 60, background: "linear-gradient(to top, #0d0018, transparent)" }} />
+                </div>
+
+                <div style={{ padding: "clamp(20px, 5vw, 32px)", flexGrow: 1, display: "flex", flexDirection: "column" }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 16, flexWrap: "wrap", gap: 10 }}>
+                    <h3 style={{ fontSize: "clamp(20px, 3vw, 26px)", fontWeight: 800, textTransform: "capitalize", color: "#ffffff" }}>
+                      {p.name.replace(/-/g, " ")}
+                    </h3>
+                    <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+                      {p.tags.map(t => (
+                        <span key={t} style={{ fontSize: 10, fontWeight: 700, color: "#f472b6", border: "1px solid rgba(244,114,182,0.3)", background: "rgba(244,114,182,0.1)", padding: "3px 8px", borderRadius: 6, textTransform: "uppercase" }}>
+                          {t}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+
+                  <p style={{ color: "#94a3b8", lineHeight: "1.6", marginBottom: 24, fontSize: "clamp(14px, 2vw, 16px)", flexGrow: 1 }}>
+                    A high-performance web application built with modern technologies.
+                    Explore the live version to see the full feature set.
+                  </p>
+
+                  <a href={p.url} target="_blank" rel="noopener noreferrer"
+                    style={{
+                      display: "inline-flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      gap: 10,
+                      color: "#ffffff",
+                      background: "linear-gradient(135deg, #7c3aed 0%, #4f46e5 100%)",
+                      padding: "14px 24px",
+                      borderRadius: "12px",
+                      fontWeight: 600,
+                      fontSize: 15,
+                      textDecoration: "none",
+                      transition: "all 0.3s ease",
+                      boxShadow: "0 10px 15px -3px rgba(124, 58, 237, 0.4)",
+                      width: "fit-content"
+                    }}>
+                    View Project <ExternalLink size={18} />
+                  </a>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
-      ))}
-    </div>
-  </div>
-</section>
+      </section>
 
       {/* ━━━━━━━━━━ CONTACT SECTION ━━━━━━━━━━ */}
       <section id="contact" style={{ minHeight: "80vh", display: "flex", alignItems: "center", justifyContent: "center", padding: "80px 5%", position: "relative", zIndex: 1 }}>
@@ -564,7 +647,7 @@ const Home = () => {
         <div style={{ display: "flex", justifyContent: "center", gap: 20, marginBottom: 14 }}>
           <a href="https://github.com/masterLELOUCH7" target="_blank" rel="noopener noreferrer" className="social-icon"><Github size={20} /></a>
           <a href="https://www.linkedin.com/in/vikram-das-6377682b9/" target="_blank" rel="noopener noreferrer" className="social-icon"><Linkedin size={20} /></a>
-          <a href="#" className="social-icon"><Instagram size={20} /></a>
+          <a href="https://instagram.com/kaizenvikk/" target="_blank" rel="noopener noreferrer" className="social-icon"><Instagram size={20} /></a>
           <a href="#" className="social-icon"><Twitter size={20} /></a>
         </div>
         <p style={{ color: "rgba(255,255,255,0.3)", fontSize: 13 }}>
@@ -572,16 +655,16 @@ const Home = () => {
         </p>
       </footer>
 
-        <style>{`
-          @media (max-width: 768px) {
-            .desktop-nav { display: none !important; }
-            .hamburger { display: block !important; }
-            section > div[style*="grid-template-columns: 1fr auto 1fr"] {
-              grid-template-columns: 1fr !important;
-              text-align: center;
-            }
+      <style>{`
+        @media (max-width: 768px) {
+          .desktop-nav { display: none !important; }
+          .hamburger { display: block !important; }
+          section > div[style*="grid-template-columns: 1fr auto 1fr"] {
+            grid-template-columns: 1fr !important;
+            text-align: center;
           }
-        `}</style>
+        }
+      `}</style>
     </div>
   );
 };
